@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: 'When moving issues in ZenHub to another pipeline, updates the Github issue label.'
+Resources:
+  ApiGateway:
+    Type: 'AWS::Serverless::Api'
+    Properties:
+      Name: !Ref AWS::StackName
+      StageName: staging
+  UpdateIssueFunction:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      Handler: updateIssue.handler
+      Runtime: nodejs12.x
+      CodeUri: src
+      MemorySize: 128
+      Timeout: 5
+      Policies:
+        - AWSLambdaExecute
+      Environment:
+        Variables:
+          GITHUB_TOKEN: !Ref GithubToken
+          PIPELINES: !Ref Pipelines
+          DEBUG: !Ref DebugLevel
+      Events:
+        HttpPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApiGateway
+            Path: '/zenhub'
+            Method: post
+Parameters:
+  DebugLevel:
+    Type: String
+    Default: ""
+    Description: "The DEBUG environment variable for the Lambda. Set to 'cloudformation-zenhub-github-label' to enable debug."
+  GithubToken:
+    Type: String
+    Default: ""
+    Description: "Your Github Token. Requires repo scope for editing issues."
+  Pipelines:
+    Type: String
+    Description: "A comma-separated list of pipelines to create Github labels for."
+Outputs:
+  APIEndpoint:
+    Description: The API Gateway endpoint to register as your Zenhub webhook.
+    Value: !Sub 'https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/staging/zenhub'
