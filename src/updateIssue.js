@@ -1,5 +1,6 @@
 const { graphql: _graphql } = require('@octokit/graphql')
 const debug = require('debug')('cloudformation-zenhub-github-label')
+const qs = require('qs')
 const graphql = _graphql.defaults({
   headers: {
     authorization: `token ${process.env.GITHUB_TOKEN}`,
@@ -114,7 +115,7 @@ const updateIssueLabels = async (issueId, labelIds) => {
 
 exports.handler = async event => {
   debug('received message', event)
-  const body = JSON.parse(event.body)
+  const body = qs.parse(event.body)
   if (body.type !== 'issue_transfer') {
     debug('body is invalid type %s', body.type)
     return {
