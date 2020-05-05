@@ -1,6 +1,6 @@
 {
   "name": "cloudformation-zenhub-github-label",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "When moving issues in ZenHub to another pipeline, updates the Github issue label.",
   "main": "index.js",
   "repository": "https://github.com/sammarks/cloudformation-zenhub-github-label",
